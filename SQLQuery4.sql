@@ -67,44 +67,71 @@ values('DK001','NCC001','DV01','MP01','Hiace','2015-11-20','2016-11-20',4),
 
 select * from DANGKYCUNGCAP;
 
+-- 3
+SELECT DongXe FROM DONGXE WHERE SoChoNgoi > 5
 
-SELECT DongXe
-FROM DONGXE
-WHERE SoChoNgoi > 5
+--4 
+SELECT *
+FROM NHACUNGCAP
+WHERE MaNhaCC IN (
+	SELECT DISTINCT MaNhaCC_id
+	FROM DangKyCungCap
+	WHERE (DongXe_id IN (
+		SELECT DongXe
+		FROM DONGXE
+		WHERE HangXe = 'Toyota')
+		AND MaMP_id IN (
+		SELECT MaMP
+		FROM MUCPHI
+		WHERE DonGia = 15000))
+	OR (
+		DongXe_id IN (
+		SELECT DongXe
+		FROM DONGXE
+		WHERE HangXe = 'KIA')
+		AND MaMP_id IN (
+		SELECT MaMP
+		FROM MUCPHI
+		WHERE DonGia = 20000))
+);
 
 
-SELECT NCC.MaNhaCC, NCC.TenNhaCC
-FROM NHACUNGCAP NCC JOIN DANGKYCUNGCAP DK
-ON NCC.MaNhaCC = DK.MaNhaCC
-JOIN MUCPHI MP
-ON MP.MaMP = DK.MaMP
-JOIN DONGXE DX
-ON DX.DongXe = DK.DongXe
-WHERE (DX.HangXe = 'Toyota' and MP.DonGia = 15000) or (DX.HangXe = 'KIA' and MP.DonGia = 20000)
+ --5
+SELECT * FROM NHACUNGCAP ORDER BY TenNhaCC ASC , MaSoThue DESC
 
 
-
-SELECT * FROM NHACUNGCAP ORDER BY TenNhaCC DESC, MaSoThue ASC
-
-
-
-SELECT NCC.MaNhaCC, NCC.TenNhaCC, count(NCC.MaNhaCC) as SoLanCC
-FROM NHACUNGCAP NCC JOIN DANGKYCUNGCAP DK
-ON NCC.MaNhaCC = DK.MaNhaCC
-WHERE DK.NgayBatDauCungCap = '20/11/2015'
-GROUP BY NCC.MaNhaCC, NCC.TenNhaCC
+-- 6
+SELECT MaNhaCC_id, count(MaDKCC) as SoLanCC FROM DANGKYCUNGCAP  where NgayBatDauCungCap = '2015-11-20' group by MaNhaCC_id
 
 
-
+--7 
 SELECT HangXe FROM DONGXE GROUP BY HANGXE
 
 
+--8
+SELECT ncc.MaNhaCC, MaDKCC,TenNhaCC, DiaChi, MaSoThue,TenLoaiDichVu,DonGia, HangXe, NgayBatDauCungCap, NgayKetThucCungCap
+FROM NHACUNGCAP ncc
+LEFT JOIN DANGKYCUNGCAP dkcc
+	ON dkcc.MaNhaCC_id = ncc.MaNhaCC
+LEFT JOIN LOAIDICHVU ldv
+	ON dkcc.MaLoaiDV_id = ldv.MaLoaiDV
+LEFT JOIN MUCPHI mp
+	ON dkcc.MaMP_id = mp.MaMP
+LEFT JOIN DONGXE dx
+	ON dkcc.DongXe_id = dx.DongXe;
 
-SELECT MaDKCC, MaNhaCC, TenNhaCC, DiaChi, MaSoThue, TenLoaiDV, DonGia,
-HangXe, NgayBatDauCC, NgayKetThucCC 
-FROM NHACUNGCAP NCC JOIN DANGKYCUNGCAP DK 
-ON NCC.MaNhaCC = DK.MaNhaCC 
-JOIN MUCPHI MP 
-ON MP.MaMp = DK.MaMp 
-JOIN LOAIDICHVU DV
-ON DV.MaLoaiDV = DK.MaLoaiDV
+--9
+SELECT *
+FROM NHACUNGCAP
+WHERE MaNhaCC IN (
+	SELECT MaNhaCC
+	FROM DANGKYCUNGCAP
+	WHERE DongXe_id = 'Hiace' OR DongXe_id = 'Cerato'	
+);
+
+--10
+SELECT ncc.MaNhaCC, ncc.TenNhaCC, ncc.DiaChi, ncc.SoDT, ncc.MaSoThue
+FROM NHACUNGCAP ncc
+LEFT JOIN DANGKYCUNGCAP dkcc
+	ON ncc.MaNhaCC = dkcc.MaNhaCC_id
+WHERE MaDKCC IS NULL;
